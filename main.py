@@ -24,6 +24,7 @@ parser.add_argument("--run_os", action="store_true", help="Enable open-set seman
 parser.add_argument("--vis_flow", action="store_true", help="Visualize optical flow from RAFT for keyframe selection")
 parser.add_argument("--log_results", action="store_true", help="save txt file with results")
 parser.add_argument("--skip_dense_log", action="store_true", help="by default, logging poses and logs dense point clouds. If this flag is set, dense logging is skipped")
+parser.add_argument("--export_map_pcd", action="store_true", help="Export the merged global point cloud as a .pcd file next to the pose log")
 parser.add_argument("--log_path", type=str, default="poses.txt", help="Path to save the log file")
 parser.add_argument("--submap_size", type=int, default=16, help="Number of new frames per submap, does not include overlapping frames or loop closure frames")
 parser.add_argument("--overlapping_window_size", type=int, default=1, help="ONLY DEFAULT OF 1 SUPPORTED RIGHT NOW. Number of overlapping frames, which are used in SL(4) estimation")
@@ -199,8 +200,11 @@ def main():
     if args.log_results:
         solver.map.write_poses_to_file(args.log_path, solver.graph, kitti_format=False)
 
-        # Log the full point cloud as one file, used for visualization.
-        # solver.map.write_points_to_file(solver.graph, args.log_path.replace(".txt", "_points.pcd"))
+        if args.export_map_pcd:
+            solver.map.write_points_to_file(
+                solver.graph,
+                args.log_path.replace(".txt", "_points.pcd"),
+            )
 
         if not args.skip_dense_log:
             # Log the dense point cloud for each submap.
